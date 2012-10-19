@@ -42,16 +42,31 @@ const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 const GLfloat high_shininess[] = { 100.0f };
 
 double rot[9] = {0};
-Vec3d eav;
 GLuint textureID;
 Mat backPxls;
 vector<double> rv(3), tv(3);
 Mat rvec(rv),tvec(tv);
 Mat camMatrix;
 
-OpenCVGLTexture imgTex;
+OpenCVGLTexture imgTex,imgWithDrawing;
 
 GLMmodel* head_obj;
+
+void saveOpenGLBuffer() {
+	static unsigned int opengl_buffer_num = 0;
+	
+	int vPort[4]; glGetIntegerv(GL_VIEWPORT, vPort);
+	Mat_<Vec3b> opengl_image(vPort[3],vPort[2]);
+	{
+		Mat_<Vec4b> opengl_image_4b(vPort[3],vPort[2]);
+		glReadPixels(0, 0, vPort[2], vPort[3], GL_BGRA, GL_UNSIGNED_BYTE, opengl_image_4b.data);
+		flip(opengl_image_4b,opengl_image_4b,0);
+		mixChannels(&opengl_image_4b, 1, &opengl_image, 1, &(Vec6i(0,0,1,1,2,2)[0]), 3);
+	}
+	stringstream ss; ss << "opengl_buffer_" << opengl_buffer_num++ << ".jpg";
+	imwrite(ss.str(), opengl_image);
+}
+
 
 void resize(int width, int height)
 {
@@ -91,6 +106,7 @@ void key(unsigned char key, int x, int y)
 		__h = __h%250;
 		break;
 	case ' ':
+			saveOpenGLBuffer();
 		loadNext();
 		break;
     default:
@@ -138,8 +154,6 @@ void myGLinit() {
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
 
 	glEnable(GL_LIGHTING);
-
-	imgTex = MakeOpenCVGLTexture(Mat());
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -186,7 +200,7 @@ void display(void)
 	glEnable2D();
 	drawOpenCVImageInGL(imgTex);
 	glTranslated(vPort[2]/2.0, 0, 0);
-	drawOpenCVImageInGL(imgTex);
+	drawOpenCVImageInGL(imgWithDrawing);
 	glDisable2D();
 
 	glClear(GL_DEPTH_BUFFER_BIT); // we want to draw stuff over the image
@@ -285,6 +299,8 @@ void loadNext() {
 
 	loadWithPoints(ip,img);
 	
+	imgWithDrawing.set(img);
+	
 	counter = (counter+1);
 }
 
@@ -306,13 +322,9 @@ void loadWithPoints(Mat& ip, Mat& img) {
 
 	printf("trans vec: \n %.3f %.3f %.3f\n",tv[0],tv[1],tv[2]);
 
-	Mat tmp,tmp1,tmp2,tmp3,tmp4,tmp5;
 	double _pm[12] = {_r[0],_r[1],_r[2],tv[0],
 					  _r[3],_r[4],_r[5],tv[1],
 					  _r[6],_r[7],_r[8],tv[2]};
-	decomposeProjectionMatrix(Mat(3,4,CV_64FC1,_pm),tmp,tmp1,tmp2,tmp3,tmp4,tmp5,eav);
-
-	printf("euler angles: %.5f %.5f %.5f\n",eav[0],eav[1],eav[2]);
 
 	Matx34d P(_pm);
 	Mat KP = camMatrix * Mat(P);
@@ -329,12 +341,6 @@ void loadWithPoints(Mat& ip, Mat& img) {
 		circle(img, opt_p_img, 4, Scalar(0,0,255), 1);
 	}
 	rotM = rotM.t();// transpose to conform with majorness of opengl matrix
-	
-	imshow("tmp",img);
-	waitKey(1);
-//	img.copyTo(backPxls);
-//	cvtColor(backPxls,backPxls,CV_BGR2RGB);
-//	cvFlip(&cvMat(250,250,CV_8UC3,backPxls.data),0,-1);
 }
 
 
@@ -366,7 +372,7 @@ int main(int argc, char** argv)
 	
 	//assert(norm(mean(op)) < 1e-05); //make sure is centered
 	
-	op = op + Scalar(0,0,25);
+	//op = op + Scalar(0,0,25);
 	
 	cout << "model points " << op << endl;
 	
@@ -382,7 +388,10 @@ int main(int argc, char** argv)
 
 	init_opengl(argc, argv); // get GL context, for loading textures
 
-	namedWindow("tmp",1);
+	// prepare OpenCV-OpenGL images
+	imgTex = MakeOpenCVGLTexture(Mat());
+	imgWithDrawing = MakeOpenCVGLTexture(Mat());
+
 	loadNext();
 
 	start_opengl();

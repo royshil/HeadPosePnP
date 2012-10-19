@@ -39,8 +39,7 @@ typedef struct my_texture {
 	}
 } OpenCVGLTexture;
 
-void glEnable2D();
-void glDisable2D();
-OpenCVGLTexture MakeOpenCVGLTexture(const Mat& _tex_img);
-
-void drawOpenCVImageInGL(const OpenCVGLTexture& tex);
+void glEnable2D();	// setup 2D drawing
+void glDisable2D(); // end 2D drawing
+OpenCVGLTexture MakeOpenCVGLTexture(const Mat& _tex_img); // create an OpenCV-OpenGL image
+void drawOpenCVImageInGL(const OpenCVGLTexture& tex); // draw an OpenCV-OpenGL image

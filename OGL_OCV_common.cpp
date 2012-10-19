@@ -18,8 +18,6 @@ void drawOpenCVImageInGL(const OpenCVGLTexture& tex) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex.tex_id);
 	glPushMatrix();
-//	glTranslated(vPort[3]/2, vPort[3]/2, 0);
-//	glRotated(180, 0, 0, 1);
 	glColor3ub(255, 255, 255);
 	
 	glScaled(vPort[3], vPort[3], 1);
@@ -74,13 +72,6 @@ void glEnable2D()
 	glLoadIdentity();
 	glTranslated(0.375, 0.375, 0);
 
-//	glEnable(GL_COLOR_MATERIAL);
-//	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-//	/* now glColor* changes diffuse reflection  */
-//	glColor3f(1,1,1);
-	
-//	glClearDepth(4.0);	
-//	glClearColor(0.5, 0.5, 1.0, 1.0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // clear the screen
 
 	glDisable(GL_DEPTH_TEST);	
@@ -118,6 +109,7 @@ void copyImgToTex(const Mat& _tex_img, GLuint* texID, double* _twr, double* _thr
 		*_twr = (double)tex_img.cols/(double)tex_pow2.cols;
 		*_thr = (double)tex_img.rows/(double)tex_pow2.rows;
 	}
+	glBindTexture( GL_TEXTURE_2D, *texID );
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, tex_pow2.cols, tex_pow2.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, tex_pow2.data);
 }	
 
