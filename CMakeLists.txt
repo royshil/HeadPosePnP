@@ -3,11 +3,13 @@ project (SimpleHeadPoseEstimator)
 
 find_package(OpenCV REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
 
 file(GLOB SHPE_SOURCES	
 	*.cpp *.h *.c)
 
-include_directories(${OpenGL_INCLUDE_DIRS})
+include_directories(${OPENGL_INCLUDE_DIRS})
+include_directories(${GLUT_INCLUDE_DIR})
 
 IF(APPLE)
 	# since we're using FreeGLUT, we need the X11 OpenGL and not the OSX internal
@@ -17,7 +19,7 @@ ENDIF(APPLE)
 
 add_executable(SHPE ${SHPE_SOURCES})
 
-target_link_libraries(SHPE ${OpenCV_LIBS} ${OpenGL_LIBS})
+target_link_libraries(SHPE ${OpenCV_LIBS} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 
 IF(APPLE)
 	target_link_libraries(SHPE GL X11 GLU freeglut)
