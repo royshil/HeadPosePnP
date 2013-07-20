@@ -23,7 +23,6 @@ using namespace std;
 #else
 #  include <gl.h>
 #endif
-#include <GL/freeglut.h>
 
 #include "glm.h"
 #include "OGL_OCV_common.h"
@@ -93,7 +92,7 @@ void key(unsigned char key, int x, int y)
     case 27 :
     case 'Q':
     case 'q': 
-		glutLeaveMainLoop();
+		exit(0);
 		break;
 	case 'w':
 	case 'W':
@@ -124,7 +123,7 @@ void idle(void)
 
 
 void myGLinit() {
-    glutSetOption ( GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION ) ;
+//    glutSetOption ( GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION ) ;
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -166,7 +165,10 @@ void drawAxes() {
 	glPushMatrix();
 	glRotated(180,0,1,0);
 	glColor4d(1,0,0,0.5);
-	glutSolidCylinder(0.05,1,15,20);
+//	glutSolidCylinder(0.05,1,15,20);
+    glBegin(GL_LINES);
+    glVertex3d(0, 0, 0); glVertex3d(0, 0, 1);
+    glEnd();
 	glTranslated(0,0,1);
 	glScaled(.1,.1,.1);
 	glutSolidTetrahedron();
@@ -176,7 +178,10 @@ void drawAxes() {
 	glPushMatrix();
 	glRotated(-90,1,0,0);
 	glColor4d(0,1,0,0.5);
-	glutSolidCylinder(0.05,1,15,20);
+//	glutSolidCylinder(0.05,1,15,20);
+    glBegin(GL_LINES);
+    glVertex3d(0, 0, 0); glVertex3d(0, 0, 1);
+    glEnd();
 	glTranslated(0,0,1);
 	glScaled(.1,.1,.1);
 	glutSolidTetrahedron();
@@ -186,7 +191,10 @@ void drawAxes() {
 	glPushMatrix();
 	glRotated(-90,0,1,0);
 	glColor4d(0,0,1,0.5);
-	glutSolidCylinder(0.05,1,15,20);
+//	glutSolidCylinder(0.05,1,15,20);
+    glBegin(GL_LINES);
+    glVertex3d(0, 0, 0); glVertex3d(0, 0, 1);
+    glEnd();
 	glTranslated(0,0,1);
 	glScaled(.1,.1,.1);
 	glutSolidTetrahedron();
@@ -269,9 +277,11 @@ void loadNext() {
 	static int counter = 1;
 	
 	printf("load %d\n",counter);
+    
+    const char* workingDir = "./";
 
 	char buf[256] = {0};
-	sprintf(buf,"Angelina_Jolie/Angelina_Jolie_%04d.txt",counter);
+	sprintf(buf,"%sAngelina_Jolie/Angelina_Jolie_%04d.txt",workingDir,counter);
 
 	vector<Point2f > imagePoints;
 	ifstream inputfile(buf);
@@ -288,7 +298,7 @@ void loadNext() {
 
 	Mat ip(imagePoints);
 	
-	sprintf(buf,"Angelina_Jolie/Angelina_Jolie_%04d.jpg",counter);
+	sprintf(buf,"%sAngelina_Jolie/Angelina_Jolie_%04d.jpg",workingDir,counter);
 
 	Mat img = imread(buf);
 
